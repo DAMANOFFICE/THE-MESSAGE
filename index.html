@@ -36,8 +36,16 @@
             font-family: 'Dancing Script', cursive;
             color: #ff4d6d;
             font-size: 3rem;
-            margin-top: 20px;
+            margin-top: 10px;
             text-shadow: 2px 2px #fff;
+        }
+
+        #welcome-header {
+            color: #ff8fa3;
+            font-size: 1.5rem;
+            margin-top: 30px;
+            font-weight: bold;
+            animation: fadeIn 1.5s ease;
         }
 
         #panda-speech {
@@ -115,6 +123,11 @@
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -135,6 +148,8 @@
     </div>
 
     <div id="content-section" class="hidden">
+        <div id="welcome-header"></div>
+        
         <h1>For My Favorite Person</h1>
         <div id="panda-speech">Checking for messages...</div>
         <div id="messages-container">Loading our memories...</div>
@@ -159,6 +174,7 @@
     const loginForm = document.getElementById('login-form');
     const loginSection = document.getElementById('login-section');
     const contentSection = document.getElementById('content-section');
+    const welcomeHeader = document.getElementById('welcome-header');
     const container = document.getElementById('messages-container');
     const speech = document.getElementById('panda-speech');
 
@@ -169,10 +185,17 @@
         const user = document.getElementById('username').value;
         const pass = document.getElementById('password').value;
 
-        if (user === "DAMAN" && pass === "Hulk4551622") {
-            loginSection.classList.add('hidden'); // Hide login form
-            contentSection.classList.remove('hidden'); // Show messages
-            startLoadingMessages(); // Start fetching from Firebase
+        // Credentials Check
+        if (user.toUpperCase() === "DAMAN" && pass === "Hulk4551622") {
+            // 1. Show the hidden section
+            loginSection.classList.add('hidden');
+            contentSection.classList.remove('hidden');
+
+            // 2. Set the Welcome Message
+            welcomeHeader.innerText = `Welcome back, Daman ✨`;
+
+            // 3. Start fetching from Firebase
+            startLoadingMessages();
         } else {
             alert("Wrong credentials! Try again.");
         }
