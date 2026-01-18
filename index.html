@@ -8,7 +8,7 @@
     
     <style>
         body {
-            background: #fff5f7; /* Soft blush pink */
+            background: #fff5f7;
             font-family: 'Quicksand', sans-serif;
             margin: 0;
             display: flex;
@@ -24,6 +24,13 @@
             font-size: 3rem;
             margin-top: 20px;
             text-shadow: 2px 2px #fff;
+        }
+
+        /* Added style for the panda speech info */
+        #panda-speech {
+            color: #ff8fa3;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
         #messages-container {
@@ -43,13 +50,12 @@
             box-shadow: 0 10px 20px rgba(255, 182, 193, 0.4);
             width: 250px;
             position: relative;
-            transform: rotate(calc(-2deg + 4deg * Math.random()));
             transition: transform 0.3s ease;
             animation: float 4s ease-in-out infinite;
         }
 
         .message-card:hover {
-            transform: scale(1.05) rotate(0deg);
+            transform: scale(1.05) !important;
             z-index: 10;
         }
 
@@ -76,23 +82,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(-1deg); }
-            50% { transform: translateY(-10px) rotate(1deg); }
-        }
-
-        /* Hearts Background Decoration */
-        .heart-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0.1;
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
     </style>
 </head>
 <body>
 
     <h1>For My Favorite Person</h1>
+    <div id="panda-speech">Checking for messages...</div>
     <div id="messages-container">Loading our memories...</div>
 
 <script type="module">
@@ -113,30 +111,31 @@
     const container = document.getElementById('messages-container');
     const speech = document.getElementById('panda-speech');
 
-    // FIXED: Changed 'timestamp' to 'time' to match your screenshot
     const q = query(collection(db, 'messages'), orderBy('time', 'desc'));
 
     onSnapshot(q, (snapshot) => {
         if (snapshot.empty) {
             container.innerHTML = "<p>No messages found in 'messages' collection.</p>";
+            if(speech) speech.innerText = "No messages yet!";
             return;
         }
 
         container.innerHTML = '';
-        speech.innerText = `I found ${snapshot.size} messages!`;
+        if(speech) speech.innerText = `I found ${snapshot.size} messages!`;
         
         snapshot.forEach((doc) => {
             const data = doc.data();
             const card = document.createElement('div');
             card.className = 'message-card';
+            
+            // Random rotation applied via JS since CSS can't do Math.random()
+            const randomRot = Math.floor(Math.random() * 6) - 3;
+            card.style.transform = `rotate(${randomRot}deg)`;
 
-            // FIXED: Changed data.text to data.message to match your screenshot
             const messageText = data.message || "No text content";
             
-            // FIXED: Formatting your 'time' field
             let displayDate = "";
             if (data.time) {
-                // If it's a Firebase Timestamp
                 displayDate = data.time.toDate ? data.time.toDate().toLocaleString() : data.time;
             }
 
