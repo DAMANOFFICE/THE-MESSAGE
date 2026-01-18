@@ -95,45 +95,61 @@
     <h1>For My Favorite Person</h1>
     <div id="messages-container">Loading our memories...</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7ihEC108GG-FL7cJWidiC4uc2B-7kv_Y",
-            authDomain: "msgl-157b0.firebaseapp.com",
-            projectId: "msgl-157b0",
-            storageBucket: "msgl-157b0.firebasestorage.app",
-            messagingSenderId: "862235386858",
-            appId: "1:862235386858:web:c2123cb0c7405d1fba0893"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7ihEC108GG-FL7cJWidiC4uc2B-7kv_Y",
+        authDomain: "msgl-157b0.firebaseapp.com",
+        projectId: "msgl-157b0",
+        storageBucket: "msgl-157b0.firebasestorage.app",
+        messagingSenderId: "862235386858",
+        appId: "1:862235386858:web:c2123cb0c7405d1fba0893"
+    };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const container = document.getElementById('messages-container');
+    const speech = document.getElementById('panda-speech');
 
-        // Reference to your collection (Assuming it's called 'messages')
-        const messagesCol = collection(db, 'messages');
-        const q = query(messagesCol, orderBy('timestamp', 'desc'));
+    // FIXED: Changed 'timestamp' to 'time' to match your screenshot
+    const q = query(collection(db, 'messages'), orderBy('time', 'desc'));
 
-        const container = document.getElementById('messages-container');
+    onSnapshot(q, (snapshot) => {
+        if (snapshot.empty) {
+            container.innerHTML = "<p>No messages found in 'messages' collection.</p>";
+            return;
+        }
 
-        // Listen for data
-        onSnapshot(q, (snapshot) => {
-            container.innerHTML = '';
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const card = document.createElement('div');
-                card.className = 'message-card';
-                
-                // Adjust 'data.text' and 'data.timestamp' to match your Firestore field names
-                card.innerHTML = `
-                    <div class="text">${data.text || data.message || "Thinking of you..."}</div>
-                    <span class="timestamp">${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : ''}</span>
-                `;
-                container.appendChild(card);
-            });
+        container.innerHTML = '';
+        speech.innerText = `I found ${snapshot.size} messages!`;
+        
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            const card = document.createElement('div');
+            card.className = 'message-card';
+
+            // FIXED: Changed data.text to data.message to match your screenshot
+            const messageText = data.message || "No text content";
+            
+            // FIXED: Formatting your 'time' field
+            let displayDate = "";
+            if (data.time) {
+                // If it's a Firebase Timestamp
+                displayDate = data.time.toDate ? data.time.toDate().toLocaleString() : data.time;
+            }
+
+            card.innerHTML = `
+                <div class="text">${messageText}</div>
+                <span class="timestamp">${displayDate}</span>
+            `;
+            container.appendChild(card);
         });
-    </script>
+    }, (error) => {
+        console.error("Error:", error);
+        container.innerHTML = "Error: " + error.message;
+    });
+</script>
 </body>
 </html>
